@@ -1,65 +1,147 @@
-# solidity-analizer README
+# Solidity_Analizer
+ 
+Una extensión de Visual Studio Code para el análisis estático de contratos inteligentes de Ethereum mediante el framework **EthIR**. Permite detectar vulnerabilidades y analizar bytecode directamente desde el editor, conectando la interfaz de VSCode en Windows con las herramientas de análisis que se ejecutan en WSL.
+ 
+## Características
+ 
+- **Análisis de contratos desde VSCode**: ejecuta análisis estático sobre ficheros `.sol` sin salir del editor.
+- **Integración con EthIR**: aprovecha el framework EthIR para analizar código fuente Solidity, bytecode EVM y ficheros desensamblados.
+- **Puente Windows + WSL**: la extensión gestiona la comunicación entre la interfaz de VSCode en Windows y el motor de análisis que corre dentro de WSL (Ubuntu). 
 
-This is the README for your extension "solidity-analizer". After writing up a brief description, we recommend including the following sections.
+## Requisitos
+ 
+Esta extensión requiere un entorno WSL correctamente configurado con varias herramientas instaladas. Sigue los pasos a continuación **en orden**.
+ 
+### Software base (Windows)
+ 
+| Requisito | Versión mínima |
+|-----------|---------------|
+| Visual Studio Code | 1.70 |
+| Node.js | 16 |
+| WSL (Ubuntu) | 20.04 |
 
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
+### Instalación de Node.js (Windows)
+ 
+Descarga e instala Node.js (versión 16 o superior) desde [nodejs.org](https://nodejs.org/). Puedes verificar la instalación con:
+ 
+```bash
+node --version
+npm --version
+ 
+### Herramientas de análisis (WSL — Ubuntu)
+ 
+Todo lo siguiente debe instalarse **dentro de WSL**, no en Windows.
+ 
+#### 1. Compilador de Solidity (`solc`)
+ 
+Clona el [repositorio de EthIR](https://github.com/costa-group/EthIR) — incluye el directorio `source/` con los binarios estáticos del compilador que requiere la extensión. Se utilizan binarios estáticos de [Argot Collective](https://github.com/argotorg/solidity) para dar soporte a contratos de cualquier versión.
+ 
+```bash
+sudo cp source/solc* /usr/bin/
+sudo chmod 755 /usr/bin/solc*
+solc --version
+solcv5 --version
+solcv6 --version
+```
+ 
+Alternativamente, instala la última versión mediante PPA:
+ 
+```bash
+sudo add-apt-repository ppa:ethereum/ethereum
+sudo apt-get update
+sudo apt-get install solc
+```
+ 
+O usa `solc-select` para gestionar múltiples versiones:
+ 
+```bash
+pip3 install solc-select
+solc-select install all
+```
+ 
+#### 2. Máquina Virtual de Ethereum (`evm`)
+ 
+Instalación estática (recomendada):
+ 
+```bash
+sudo cp source/evm* /usr/bin/
+sudo chmod 755 /usr/bin/evm*
+evm --version
+```
+ 
+O instala mediante PPA:
+ 
+```bash
+sudo apt-get install software-properties-common
+sudo add-apt-repository -y ppa:ethereum/ethereum
+sudo apt-get update
+sudo apt-get install ethereum
+```
+ 
+#### 3. Solver Z3
+ 
+Descarga el código fuente, compila e instala:
+ 
+```bash
+unzip z3-z3-4.5.0.zip
+cd z3-z3-4.5.0
+python scripts/mk_make.py --python
+cd build
+make
+sudo make install
+```
+ 
+#### 4. Dependencias de Python 3
+ 
+```bash
+pip3 install six requests semantic_version
+```
+ 
+Si encuentras problemas con `pip3`:
+ 
+```bash
+python3 -m pip install six requests semantic_version
+```
+ 
+#### 5. EthIR
+ 
+Una vez instaladas todas las dependencias, verifica que EthIR funciona ejecutando alguno de los siguientes comandos desde su directorio:
+ 
+```bash
+# Desde un fichero Solidity
+./ethir.py -s file_name.sol
+ 
+# Desde bytecode EVM
+./ethir.py -s file_name.evm -b
+ 
+# Desde un fichero desensamblado
+./ethir.py -s file_name.disasm -disasm
+```
+ 
+> **Importante:** asegúrate de que todas las herramientas instaladas están correctamente añadidas al `PATH` de WSL. Comprueba las versiones instaladas para evitar incompatibilidades con EthIR.
+ 
+## Configuración de la extensión
+ 
+Esta extensión no añade por ahora configuraciones adicionales a VS Code mediante `contributes.configuration`. Se añadirán ajustes en versiones futuras.
+ 
+## Problemas conocidos
+ 
+- La extensión requiere que WSL esté correctamente configurado y accesible desde Windows. Si WSL no se detecta, el análisis no se ejecutará.
+- Los binarios estáticos del directorio `source/` deben provenir del repositorio de EthIR — la extensión fallará si no encuentra dicha carpeta.
+- Los conflictos de versión de Python pueden impedir la instalación de dependencias; usa `python3 -m pip` como alternativa.
+## Notas de versión
+ 
 ### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
+ 
+Versión inicial de `solidity-analizer`:
+- Integración con EthIR mediante WSL.
+- Soporte para los formatos de entrada `.sol`, `.evm` y `.disasm`.
+- Análisis lanzado desde la paleta de comandos de VSCode.
 ---
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+ 
+## Más información
+ 
+- [Repositorio de EthIR](https://github.com/costa-group/EthIR)
+- [Argot Collective — Binarios estáticos de solc](https://github.com/argotorg/solidity)
+- [API de extensiones de Visual Studio Code](https://code.visualstudio.com/api)
+- [Guía de instalación de WSL](https://learn.microsoft.com/es-es/windows/wsl/install)
