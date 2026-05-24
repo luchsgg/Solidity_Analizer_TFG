@@ -1,4 +1,4 @@
-# solidity-analizer
+# Solidity_Analizer
  
 Una extensión de Visual Studio Code para el análisis estático de contratos inteligentes de Ethereum mediante el framework **EthIR**. Permite detectar vulnerabilidades y analizar bytecode directamente desde el editor, conectando la interfaz de VSCode en Windows con las herramientas de análisis que se ejecutan en WSL.
  
