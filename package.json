@@ -1,0 +1,70 @@
+{
+  "name": "solidity-analizer",
+  "displayName": "Solidity Analizer",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.109.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "tfg-sidebar",
+          "title": "Solidity Gas Analyzer",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "tfg-sidebar": [
+        {
+          "id": "miMenuView",
+          "name": "Menú",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [],
+    "configuration": {
+      "title": "TFG — Solidity Analyzer",
+      "properties": {
+        "tfg.ethirPath": {
+          "type": "string",
+          "default": "/mnt/c/Users/lucia/solidity-analizer/EthIR/ethir/ethir.py",
+          "description": "Ruta WSL al script principal de EthIR (ethir.py)"
+        },
+        "tfg.solcPath": {
+          "type": "string",
+          "default": "/home/luchagg/.local/bin/solc",
+          "description": "Ruta WSL al binario de solc usado por EthIR"
+        },
+        "tfg.solcWindowsPath": {
+          "type": "string",
+          "default": "",
+          "description": "Ruta Windows al compilador solc-windows.exe (para análisis de gas). Dejar vacío para usar la carpeta Downloads del usuario."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.109.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "eslint": "^9.39.2",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grafo DOT</title>
+    <link rel="stylesheet" href="/imageDot.css">
+</head>
+<body>
+    <h2>Visualización del Grafo</h2>
+    <div id="error"></div>
+    <div id="graph"></div>
+
+    <script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+    <script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+    <script>
+        const dot = `__DOT_CONTENT__`;
+
+        const viz = new Viz();
+        viz.renderSVGElement(dot)
+            .then(svg => {
+                document.getElementById('graph').appendChild(svg);
+            })
+            .catch(err => {
+                const errorDiv = document.getElementById('error');
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Error al renderizar el grafo: ' + err.message;
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+body {
+    background: #1e1e1e;
+    color: white;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: #cccccc;
+}
+
+#graph {
+    width: 100%;
+    overflow: auto;
+}
+
+#graph svg {
+    max-width: 100%;
+    height: auto;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    display: block;
+    margin: 0 auto;
+}
+
+#error {
+    color: #f44747;
+    display: none;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}

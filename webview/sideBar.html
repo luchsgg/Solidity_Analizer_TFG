@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solidity Gas Analyzer</title>
+    <link rel="stylesheet" href="/sideBar.css">
+</head>
+<body>
+
+    <!-- SECCIÓN: General -->
+    <div class="section">
+        <div class="section-title">General</div>
+        <button class="btn" id="btnAddFile" data-tooltip="Abre un archivo .sol desde tu sistema">
+            <span class="icon">📂(.sol)</span> Añadir archivo .sol
+        </button>
+        <button class="btn" id="btnHighlightYellow" data-tooltip="Resalta todas las funciones en amarillo sin analizar gas">
+            <span class="icon">🔍</span> Destacar funciones
+        </button>
+        <button class="btn" id="btnAnalyzeSolc" data-tooltip="Analiza el gas de cada función usando solc y colorea por coste">
+            <span class="icon">⛽</span> Analizar Gas (solc)
+        </button>
+        <button class="btn" id="btnHashes" data-tooltip="Genera los hashes de las funciones del contrato">
+            <span class="icon">#</span> Hashes de funciones
+        </button>
+        <button class="btn" id="btnOpenDot" data-tooltip="Abre un archivo .dot para visualizar un grafo CFG">
+            <span class="icon">📂(.dot)</span> Abrir grafo .dot
+        </button>
+        <button class="btn" id="btnOpenDotCostabs" data-tooltip="Busca archivos .dot generados por CFG">
+            <span class="icon">🗂️</span> Abrir .dot de costabs
+        </button>
+    </div>
+
+    <!-- SECCIÓN: Análisis EthIR -->
+    <div class="section">
+        <div class="section-title">Análisis EthIR</div>
+        <button class="btn" id="btnCFG" data-tooltip="Genera el Control Flow Graph del contrato (normal, memory, storage, all)">
+            <span class="icon">-cfg</span> Generar CFG
+        </button>
+        <button class="btn" id="btnSaco" data-tooltip="Traduce el RBR de EthIR al formato SACO">
+            <span class="icon">-saco</span> SACO
+        </button>
+        <button class="btn" id="btnCfile" data-tooltip="Traduce el RBR de EthIR a formato C (int, uint, uint256)">
+            <span class="icon">-c</span> Traducción C
+        </button>
+         <button class="btn" id="btnSafevm" data-tooltip="Verifica el contrato traducido a C con CPAchecker, VeryMax o SeaHorn">
+            <span class="icon">SAFEvm</span> Solver
+        </button>
+    </div>
+
+    <!-- SECCIÓN: Memoria y Storage -->
+    <div class="section">
+        <div class="section-title">Memoria y Storage</div>
+        <button class="btn" id="btnMemAnalysis" data-tooltip="Análisis de memoria: baseref u offset">
+            <span class="icon">🧠</span> Análisis Memoria
+        </button>
+        <button class="btn" id="btnStorageAnalysis" data-tooltip="Ejecuta el análisis de storage del contrato">
+            <span class="icon">🗄️</span> Análisis Storage
+        </button>
+    </div>
+
+    <!-- SECCIÓN: Compilador -->
+    <div class="section">
+        <div class="section-title">Compilador</div>
+        <button class="btn" id="btnSolcCompiler" data-tooltip="Ejecuta EthIR usando el compilador solc instalado en WSL">
+            <span class="icon">⚙️</span> Usar compilador solc
+        </button>
+    </div>
+
+    <!-- SECCIÓN: Comando combinado -->
+    <div class="section">
+        <div class="section-title">Comando combinado</div>
+        <div class="combo-body">
+
+            <div class="combo-row" id="row-saco">
+                <label><input type="checkbox" id="cb-saco"> -saco</label>
+            </div>
+
+            <div class="combo-row" id="row-gastap">
+                <label><input type="checkbox" id="cb-gastap"> -gastap</label>
+                <select id="sel-gastap" disabled>
+                    <option value="op">op</option>
+                    <option value="mem">mem</option>
+                    <option value="all">all</option>
+                </select>
+            </div>
+
+            <div class="combo-row" id="row-cfg">
+                <label><input type="checkbox" id="cb-cfg"> -cfg</label>
+                <select id="sel-cfg" disabled>
+                    <option value="normal">normal</option>
+                    <option value="memory">memory</option>
+                    <option value="storage">storage</option>
+                    <option value="all">all</option>
+                </select>
+            </div>
+
+            <div class="combo-row" id="row-c">
+                <label><input type="checkbox" id="cb-c"> -c</label>
+                <select id="sel-c" disabled>
+                    <option value="int">int</option>
+                    <option value="uint">uint</option>
+                    <option value="uint256">uint256</option>
+                </select>
+            </div>
+
+            <div class="combo-sep"></div>
+
+            <div class="combo-row" id="row-solc">
+                <label><input type="checkbox" id="cb-solc"> -solc-compiler</label>
+                <input type="text" id="inp-solc" disabled placeholder="/usr/bin/solc" value="/usr/bin/solc">
+            </div>
+
+            <div class="combo-row" id="row-opt">
+                <label><input type="checkbox" id="cb-opt"> -optimize-run</label>
+                <input type="text" id="inp-runs" disabled placeholder="200" style="max-width:50px">
+            </div>
+
+            <div class="combo-row" id="row-yul">
+                <label><input type="checkbox" id="cb-yul"> -no-yul-opt</label>
+            </div>
+
+            <div class="combo-row" id="row-ir">
+                <label><input type="checkbox" id="cb-ir"> -via-ir</label>
+            </div>
+
+        </div>
+
+        <div class="preview-box">
+            <div class="preview-header">
+                <span>vista previa</span>
+                <span class="preview-flag-count" id="flag-count"></span>
+            </div>
+            <div class="preview-content" id="combo-preview">
+                <span class="preview-base">python3 ethir.py -s archivo.sol</span>
+            </div>
+        </div>
+
+        <button class="run-btn" id="run-combo" disabled>
+            <span class="run-dot"></span>
+            Ejecutar combinado
+        </button>
+    </div>
+
+    <!-- 
+         SECCIÓN NUEVA: Lista de funciones con gas estimado
+     -->
+    <div class="section" id="section-functions" style="display:none">
+        <div class="section-title">Funciones del contrato</div>
+        <div id="function-list"></div>
+    </div>
+
+    <!-- SECCIÓN: Leyenda -->
+    <div class="section">
+        <div class="section-title">Leyenda</div>
+        <div class="legend">
+            <div class="legend-row"><div class="legend-dot" style="background:#4ec9b0"></div> Verde: &lt; 50,000 gas</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#ce9178"></div> Naranja: 50,000 - 100,000 gas</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#f44747"></div> Rojo: &gt; 100,000 gas</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#dcdcaa"></div> Amarillo: Sin analizar</div>
+        </div>
+    </div>
+
+    <!-- Limpiar -->
+    <button class="btn danger" id="btnClear" data-tooltip="Elimina todos los resaltados del editor">
+        <span class="icon">🗑️</span> Limpiar resaltados
+    </button>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        //  Mensajes entrantes 
+        window.addEventListener('message', event => {
+            const msg = event.data;
+
+            if (msg.command === 'updateActiveFile') {
+                const name = msg.fileName
+                    ? msg.fileName.split(/[\\/]/).pop()
+                    : 'Ningún archivo .sol abierto';
+                const el = document.getElementById('activeFileName');
+                if (el) el.textContent = name;
+            }
+
+            //  NUEVO: recibir lista de funciones con gas 
+            if (msg.command === 'updateFunctions') {
+                renderFunctions(msg.functions);
+            }
+        });
+
+        //  NUEVO: renderizar funciones con badge de gas 
+        function renderFunctions(functions) {
+            const section   = document.getElementById('section-functions');
+            const container = document.getElementById('function-list');
+
+            if (!functions || functions.length === 0) {
+                section.style.display = 'none';
+                container.innerHTML   = '';
+                return;
+            }
+
+            section.style.display = 'block';
+
+            container.innerHTML = functions.map(fn => {
+                // Badge de gas: solo si viene gasLabel (GASTAP) o gas (solc)
+                let gasBadge = '';
+
+                if (fn.gasLabel !== undefined && fn.gasLabel !== null && fn.gasLabel !== '') {
+                    // Viene de GASTAP: puede ser "22227", "259+26376*nat(a)", etc.
+                    const isInfinite = fn.gas === 999999;
+                    const cls = isInfinite ? 'gas-badge gas-infinite' : 'gas-badge';
+                    gasBadge = `<span class="${cls}" title="Gas estimado (GASTAP)">${fn.gasLabel}</span>`;
+
+                } else if (fn.gas !== undefined && fn.gas > 0) {
+                    // Viene de solc: gas es un número
+                    const isInfinite = fn.gas === 999999;
+                    const cls = isInfinite ? 'gas-badge gas-infinite' : 'gas-badge';
+                    const label = isInfinite ? 'infinite' : fn.gas.toLocaleString();
+                    gasBadge = `<span class="${cls}" title="Gas estimado (solc)">${label}</span>`;
+                }
+
+                return `
+                <div class="function-item" onclick="goToFunction('${fn.name}')">
+                    <span class="function-name">${fn.name}</span>
+                    <span class="function-line">L${fn.line}</span>
+                    ${gasBadge}
+                </div>`;
+            }).join('');
+        }
+
+        //  NUEVO: ir a la función en el editor 
+        function goToFunction(name) {
+            vscode.postMessage({ command: 'highlightFunction', functionName: name });
+        }
+
+        //  Botones existentes 
+        document.getElementById('btnHighlightYellow') .addEventListener('click', () => vscode.postMessage({ command: 'highlightYellow' }));
+        document.getElementById('btnAnalyzeSolc')     .addEventListener('click', () => vscode.postMessage({ command: 'analyzeSolc' }));
+        document.getElementById('btnAddFile')         .addEventListener('click', () => vscode.postMessage({ command: 'addSolFile' }));
+        document.getElementById('btnOpenDot')         .addEventListener('click', () => vscode.postMessage({ command: 'openDotGraph' }));
+        document.getElementById('btnHashes')          .addEventListener('click', () => vscode.postMessage({ command: 'hashes' }));
+        document.getElementById('btnClear')           .addEventListener('click', () => vscode.postMessage({ command: 'clearHighlights' }));
+        document.getElementById('btnCFG')             .addEventListener('click', () => vscode.postMessage({ command: 'cfg' }));
+        document.getElementById('btnSaco')            .addEventListener('click', () => vscode.postMessage({ command: 'saco' }));
+        document.getElementById('btnCfile')           .addEventListener('click', () => vscode.postMessage({ command: 'cfile' }));
+        document.getElementById('btnMemAnalysis')     .addEventListener('click', () => vscode.postMessage({ command: 'memAnalysis' }));
+        document.getElementById('btnStorageAnalysis') .addEventListener('click', () => vscode.postMessage({ command: 'storageAnalysis' }));
+        document.getElementById('btnSolcCompiler')    .addEventListener('click', () => vscode.postMessage({ command: 'solcCompiler' }));
+        document.getElementById('btnOpenDotCostabs')  .addEventListener('click', () => vscode.postMessage({ command: 'openDotCostabs' }));
+        document.getElementById('btnSafevm').addEventListener('click', () => vscode.postMessage({ command: 'safevm' }));
+
+        //  Combo: vincular checkboxes con sus controles 
+        [
+            ['cb-gastap', 'sel-gastap'],
+            ['cb-cfg',    'sel-cfg'],
+            ['cb-c',      'sel-c'],
+            ['cb-solc',   'inp-solc'],
+            ['cb-opt',    'inp-runs'],
+        ].forEach(([cbId, depId]) => {
+            document.getElementById(cbId).addEventListener('change', () => {
+                document.getElementById(depId).disabled =
+                    !document.getElementById(cbId).checked;
+                comboUpdate();
+            });
+        });
+
+        ['cb-saco', 'cb-yul', 'cb-ir'].forEach(id =>
+            document.getElementById(id).addEventListener('change', comboUpdate)
+        );
+
+        ['sel-gastap', 'sel-cfg', 'sel-c'].forEach(id =>
+            document.getElementById(id).addEventListener('change', comboUpdate)
+        );
+        ['inp-solc', 'inp-runs'].forEach(id =>
+            document.getElementById(id).addEventListener('input', comboUpdate)
+        );
+
+        //  Combo: construir array de flags 
+        function comboFlags() {
+            const cbv = id => document.getElementById(id).checked;
+            const val = id => document.getElementById(id).value.trim();
+            const f = [];
+            if (cbv('cb-saco'))   f.push('-saco');
+            if (cbv('cb-gastap')) f.push(`-gastap ${val('sel-gastap')}`);
+            if (cbv('cb-cfg'))    f.push(`-cfg ${val('sel-cfg')}`);
+            if (cbv('cb-c'))      f.push(`-c ${val('sel-c')}`);
+            if (cbv('cb-solc'))   f.push(`-solc-compiler ${val('inp-solc') || '/usr/bin/solc'}`);
+            if (cbv('cb-opt')) {
+                const r = val('inp-runs');
+                f.push(r ? `-optimize-run -run ${r}` : '-optimize-run');
+            }
+            if (cbv('cb-yul'))    f.push('-no-yul-opt');
+            if (cbv('cb-ir'))     f.push('-via-ir');
+            return f;
+        }
+
+        //  Combo: actualizar filas activas, preview y botón 
+        function comboUpdate() {
+            ['saco', 'gastap', 'cfg', 'c', 'solc', 'opt', 'yul', 'ir'].forEach(key => {
+                const cb  = document.getElementById(`cb-${key}`);
+                const row = document.getElementById(`row-${key}`);
+                if (cb && row) row.classList.toggle('active', cb.checked);
+            });
+
+            const f       = comboFlags();
+            const preview = document.getElementById('combo-preview');
+            const counter = document.getElementById('flag-count');
+            const btn     = document.getElementById('run-combo');
+
+            if (!f.length) {
+                preview.innerHTML = '<span class="preview-base">python3 ethir.py -s archivo.sol</span>';
+                counter.style.display = 'none';
+                btn.disabled = true;
+            } else {
+                const chips = f
+                    .map(flag => `<span class="flag-chip">${flag}</span>`)
+                    .join('');
+                preview.innerHTML =
+                    `<span class="preview-base">python3 ethir.py -s archivo.sol</span> ${chips}`;
+                counter.textContent   = `${f.length} flag${f.length > 1 ? 's' : ''}`;
+                counter.style.display = '';
+                btn.disabled = false;
+            }
+        }
+
+        //  Combo: enviar al extension host 
+        document.getElementById('run-combo').addEventListener('click', () => {
+            const flags = comboFlags();
+            if (!flags.length) return;
+            vscode.postMessage({ command: 'ethirCombo', flags });
+        });
+    </script>
+</body>
+</html>
