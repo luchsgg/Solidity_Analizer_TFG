@@ -19,6 +19,14 @@ Esta extensión requiere un entorno WSL correctamente configurado con varias her
 | Visual Studio Code | 1.70 |
 | Node.js | 16 |
 | WSL (Ubuntu) | 20.04 |
+
+### Instalación de Node.js (Windows)
+ 
+Descarga e instala Node.js (versión 16 o superior) desde [nodejs.org](https://nodejs.org/). Puedes verificar la instalación con:
+ 
+```bash
+node --version
+npm --version
  
 ### Herramientas de análisis (WSL — Ubuntu)
  
