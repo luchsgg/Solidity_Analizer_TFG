@@ -138,10 +138,29 @@ Versión inicial de `solidity-analizer`:
 - Soporte para los formatos de entrada `.sol`, `.evm` y `.disasm`.
 - Análisis lanzado desde la paleta de comandos de VSCode.
 ---
- 
 ## Más información
  
 - [Repositorio de EthIR](https://github.com/costa-group/EthIR)
 - [Argot Collective — Binarios estáticos de solc](https://github.com/argotorg/solidity)
 - [API de extensiones de Visual Studio Code](https://code.visualstudio.com/api)
 - [Guía de instalación de WSL](https://learn.microsoft.com/es-es/windows/wsl/install)
+
+ ## Configuración recomendada para VS Code (WSL)
+
+Para que el proyecto y las extensiones funcionen correctamente dentro de WSL, añade esta configuración a tu archivo local `settings.json` de Visual Studio Code.
+
+### Pasos para configurarlo:
+1. En VS Code (conectado a tu instancia de WSL), abre la paleta de comandos (`Ctrl + Shift + P`).
+2. Escribe **"Preferences: Open User Settings (JSON)"** y selecciónalo.
+3. Añade las siguientes líneas dentro del objeto JSON principal, cambiando `<tu_usuario_wsl>` por tu nombre de usuario real en Linux:
+
+```json
+{
+  "workbench.colorTheme": "Shades of Purple (Super Dark)",
+  "git.autofetch": true,
+  "redhat.telemetry.enabled": true,
+  "liveServer.settings.donotShowInfoMsg": true,
+  "git.confirmSync": false,
+  "files.autoSave": "afterDelay",
+  "tfg-lucia.solcPath": "/home/<tu_usuario_wsl>/.solc-select/artifacts/solc-0.5.17/solc-0.5.17"
+}
